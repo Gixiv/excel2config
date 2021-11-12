@@ -1,6 +1,6 @@
 <?php
 
-include_once __DIR__ . './PHPExcel/Classes_/PHPExcel/IOFactory.php';
+include_once __DIR__ . '/PHPExcel/Classes_/PHPExcel/IOFactory.php';
 
 
 function loadConfig($filePath,$sheetName,$startRowIndex,$endRowIndex,$needIndexNameArr){

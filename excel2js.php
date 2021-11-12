@@ -36,7 +36,7 @@ else
 
 
 
-    $map = (ConfigData::getInstance())->getDataArr($file_path,'sheet1');
+    $map = (ConfigData::getInstance())->getDataArr($file_path,'Sheet1');
 
     $typeArr = $map['type'];
     $arrMap = $map['data'];
