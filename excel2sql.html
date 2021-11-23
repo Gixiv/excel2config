@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="UTF-8">
+<form action="./excel2sql.php" method="POST" target="_blank" enctype="multipart/form-data">
+  <label>table_name</label>
+  <input type="text" name="table_name" value="">
+  <label>field</label>
+  <div id="container"></div>
+  <input type="button" value="添加field" onclick="addField()">
+  <br>
+  <label>选择文件</label>
+  <input type="file" id="file" name="file" />
+  <button type="submit" class="btn btn-primary">提交</button>
+
+</form>
+<script>
+  function addField() {
+      var input = '<input type="text"  name="fieldArr[]" />';
+      document.getElementById('container').innerHTML += input
+  }
+</script>
+</html>
