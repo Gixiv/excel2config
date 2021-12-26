@@ -1,0 +1,55 @@
+
+<input type='file' id='upload'  /><br>
+<textarea id="data" style="width: 500px;height: 500px"></textarea>
+
+<script>
+    var time = 0;
+    var json = [];
+    document.querySelector('#upload').onchange = function(e){
+        let file = this.files[0];
+        let audio = new Audio();
+        try{
+            audio.srcObject = file
+        }catch(err){
+            audio.src = URL.createObjectURL(file)
+        }
+        audio.addEventListener('loadedmetadata', function(){    //监听音视频加载完毕
+            console.log(audio.duration);
+            audio.play();
+            //time = audio.duration;
+            setInterval(()=>{
+                ++time;
+            },1000)
+        })
+    }
+</script>
+<script>
+    document.onkeydown=function(event){
+        var e = event || window.event || arguments.callee.caller.arguments[0];
+
+        if(e){
+            var realkey=String.fromCharCode(e.keyCode);//将数字形式的键值转化为真实的按键
+            console.log(realkey);
+            var trackId = null;
+            switch (realkey) {
+                case 'Q':
+                    trackId = 0;
+                    break;
+                case 'W':
+                    trackId = 1;
+                    break;
+                case 'E':
+                    trackId = 2;
+                    break;
+                case 'R':
+                    trackId = 3;
+                    break;
+            }
+            if(trackId!==null){
+                json.push({pointTime:time,trackId:trackId});
+                document.getElementById('data').value = JSON.stringify(json)
+            }
+        }
+    };
+</script>
+
