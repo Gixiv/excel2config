@@ -18,8 +18,8 @@
             audio.play();
             //time = audio.duration;
             setInterval(()=>{
-                ++time;
-            },1000)
+                time +=0.1
+            },100)
         })
     }
 </script>
@@ -46,7 +46,7 @@
                     break;
             }
             if(trackId!==null){
-                json.push({pointTime:time,trackId:trackId});
+                json.push({pointTime:Number(time.toFixed(1)),trackId:trackId});
                 document.getElementById('data').value = JSON.stringify(json)
             }
         }
