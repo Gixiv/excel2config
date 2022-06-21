@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<button onclick="btn()">确定</button>
+<textarea id="textarea"></textarea>
+<script>
+    function btn(){
+        index(document.getElementById('textarea').value,']',4)
+    }
+    function index(str,char,afterNum) {
+        var result = [];
+        var index = str.indexOf(char); // 字符出现的位置
+        var num = 0; // 这个字符出现的次数
+        while(index !== -1) {
+            result.push({"成语":str.substr(index+1,afterNum)});
+            num++; // 每出现一次 次数加一
+            index = str.indexOf(char,index + 1); // 从字符串出现的位置的下一位置开始继续查找
+        }
+        console.log(result);
+    }
+</script>
+</body>
+</html>
