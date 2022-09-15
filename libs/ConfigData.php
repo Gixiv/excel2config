@@ -23,7 +23,8 @@ class ConfigData{
     public function getDataArr($filename,$sheetName){
         $type = loadConfig($filename,$sheetName,1,2,[]);
         $data = loadConfig($filename,$sheetName,2,3,[]);
-        $Arr = loadConfig($filename,$sheetName,3,null,$data[0]);
+        $index_name_arr = $data[0];//字段名字
+        $Arr = loadConfig($filename,$sheetName,3,null,$index_name_arr);
         //$Map = $this->getArrIndexIsId($Arr);
         return ["type"=>$type[0],"data"=>$Arr];
     }
