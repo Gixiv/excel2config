@@ -19,7 +19,11 @@ class ConfigData{
 
     }
 
-
+    /**
+     * excel表第一行（类型）不需要时可以随意填写
+     * excel表第二行（数据的字段索引）必须填写，且不要重，否者数据会覆盖。
+     * excel表第三行及以下都是正常的数据
+     */
     public function getDataArr($filename,$sheetName){
         $type = loadConfig($filename,$sheetName,1,2,[]);
         $data = loadConfig($filename,$sheetName,2,3,[]);
