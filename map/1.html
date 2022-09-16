@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>地图打点小工具</title>
+		<style>
+			/* 这里定义一下div(块元素)已下span 标签的宽.高.边框线以及边框线的颜色*/
+			span{
+				display: block;
+				width: 80px;
+				height: 80px;
+				border: 1px solid #000000;
+				box-sizing: border-box;
+				float: left;
+			}
+			table {
+				border-collapse:collapse;
+			}
+			td{
+				border: 1px solid #000000;
+				box-sizing: border-box;
+			}
+		</style>
+	</head>
+	<body>
+	<input id="width" type="text" value="" placeholder="width"><br>
+	<input id="height" type="text" value="" placeholder="height"><br>
+	<input id="file" type="file" value="" onchange="set_background()"><br>
+	
+	
+	<input id="row" type="text" value="" placeholder="row"><br>
+	<input id="col" type="text" value="" placeholder="col"><br>
+	<input id="size" type="text" value="" placeholder="size"><br>
+	<input id="scale" type="text" value="" placeholder="scale"><br>
+	<input onclick="make_block_btn()" type="button" value="生成"><input onclick="make_file()" type="button" value="输出"><br>
+	<div>
+		<span style="background-color: rgba(0,0,0,0)">按住1键画0</span>
+		<span style="background-color: rgba(0,128,0,0.5)">按住2键画1</span>
+		<span style="background-color: rgba(255,0,0,0.5)">按住3键画2</span>
+		<div style="clear: both"></div>
+	</div>
+	<div style="position: relative">
+		<div id="background" style="position: absolute;top:0;left:0;"></div>
+		<table id="container" style="position: absolute;top:0;left:0;"></table>
+	</div>
+
+		<script>
+			function make_block_btn() {
+			    var row = document.getElementById('row').value;
+                var col = document.getElementById('col').value;
+                var size = document.getElementById('size').value;
+                var scale = document.getElementById('scale').value;
+                make_block(row,col,size*scale,size*scale);
+                onkey();
+            }
+            //生成地图块
+			function make_block(row,col,width,height) {
+			    var html = '';
+			    for(var i=0;i<row;i++){
+			        var row_html = '<tr>';
+                    for(var ii=0;ii<col;ii++){
+                        row_html+='<td data-value="0" style="width:'+width+'px;height:'+height+'px;"></td>';
+                    }
+                    row_html += '</tr>';
+                    html+=row_html;
+				}
+				document.getElementById('container').innerHTML = html;
+            }
+            //获取地图信息
+            function get_block_data() {
+			    var data = [];
+				var arr = document.getElementById('container').getElementsByTagName('tr');
+				for(var i=arr.length-1;i>=0;i--){
+				    var row = [];
+				    var td_arr = arr[i].getElementsByTagName('td');
+                    for(var ii=0;ii<td_arr.length;ii++){
+                        row.push(Number(td_arr[ii].dataset.value))
+                    }
+                    data.push(row)
+				}
+				return data;
+            }
+            //绘画块监听
+			function init_block(callback) {
+                var a=document.getElementById('container').getElementsByTagName("td");
+                for(var i=0;i<a.length;i++){
+                    a[i].onmouseover=function () {
+                        callback(this)
+                    }
+                }
+            }
+            //设置画笔颜色
+            function set_mode(mode,color) {
+                init_block(mode,color);
+            }
+            //检测笔操作
+			var flag = false;
+			function onkey() {
+                document.onkeydown = function (event) {
+                    var e = event || window.event || arguments.callee.caller.arguments[0];
+                    if(flag){
+                        return
+					}else{
+                        flag = true
+					}
+                    if(e.keyCode===49){
+                        init_block((this_dom)=>{
+                            this_dom.dataset.value = '0';
+                            this_dom.style.backgroundColor = 'rgba(0,0,0,0)';
+                        });
+                    }
+					if(e.keyCode===50){
+                        init_block((this_dom)=>{
+                            this_dom.dataset.value = '1';
+                            this_dom.style.backgroundColor = 'rgba(0,128,0,0.5)';
+                        });
+					}
+                    if(e.keyCode===51){
+                        init_block((this_dom)=>{
+                            this_dom.dataset.value = '2';
+                            this_dom.style.backgroundColor = 'rgba(255,0,0,0.5)';
+                        });
+                    }
+				};
+                document.onkeyup = function (event) {
+                    flag = false;
+                    init_block(()=>{});
+				}
+            }
+		</script>
+	<script>
+		//设置地图图片
+		function set_background() {
+            var reads = new FileReader();
+            let f = document.getElementById('file').files[0];
+            reads.readAsDataURL(f);
+            reads.onload = function (e) {
+                document.getElementById('background').style.backgroundImage = 'url('+this.result+')';
+                document.getElementById('background').style.width = document.getElementById('width').value+'px';
+                document.getElementById('background').style.height = document.getElementById('height').value+'px';
+            };
+        }
+	</script>
+	<script>
+		function make_file() {
+			var mapId = 1010;
+			var width = Number(document.getElementById('width').value);
+            var height = Number(document.getElementById('height').value);
+			var grid_width = Number(document.getElementById('size').value);
+			var grid_height = Number(document.getElementById('size').value);
+            var row = Number(document.getElementById('row').value);
+            var col = Number(document.getElementById('col').value);
+
+		    var data ={};
+		    data.datatype = 'map';
+		    data.mapId = mapId;
+            data.baseInfo = {"mapId":mapId,"width":width,"height":height,"grid_width":grid_width,"grid_height":grid_height,"rows":row,"lines":col};
+            data.mapInfo = get_block_data();
+            data.npcInfo = {};
+            data.startPos = {"x":0,"y":0};
+            ExportTxt('map_'+mapId+'.json',JSON.stringify(data))
+        }
+        //生成文件
+        function ExportTxt(name, data) {
+            const urlObject = window.URL || window.webkitURL || window;
+            const export_blob = new Blob([data]);
+
+            const save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a");
+            save_link.href = urlObject.createObjectURL(export_blob);
+            save_link.download = name;
+
+            const ev = document.createEvent("MouseEvents");
+            ev.initMouseEvent("click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+            save_link.dispatchEvent(ev);
+        }
+	</script>
+	</body>
+</html>
+
