@@ -16,7 +16,9 @@
 <script>
   function addField() {
       var input = '<input type="text"  name="fieldArr[]" />';
-      document.getElementById('container').innerHTML += input
+      var temp = document.createElement('div');
+      temp.innerHTML = input;
+      document.getElementById('container').appendChild(temp.childNodes[0]);
   }
 </script>
 </html>
