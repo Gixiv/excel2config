@@ -59,7 +59,7 @@
 			    for(var i=0;i<row;i++){
 			        var row_html = '<tr>';
                     for(var ii=0;ii<col;ii++){
-                        row_html+='<td data-value="0" style="width:'+width+'px;height:'+height+'px;"></td>';
+                        row_html+='<td title="'+ii+','+(row-i)+'" data-value="0" style="width:'+width+'px;height:'+height+'px;"></td>';
                     }
                     row_html += '</tr>';
                     html+=row_html;
