@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<input  id="map_id" type="text" value="" placeholder="map_id"/>
+<input  id="size" type="text" value="" placeholder="size"/>
+<input  id="fileOne" type="file" />
+<canvas id="show"></canvas>
+<script >
+    /**
+     * 第一步选择图
+     * */
+    //读取本地文件
+    var inputOne = document.getElementById('fileOne');
+    inputOne.onchange = function () {
+        //1.获取选中的文件列表
+        var fileList = inputOne.files;
+        var file = fileList[0];
+        if(!file){
+            return
+        }
+        //读取文件内容
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function (e) {
+            //将结果显示到canvas
+            showCanvas(reader.result);
+        }
+    };
+    //指定图片内容显示
+    function showCanvas(dataUrl) {
+        //加载图片
+        var img = new Image();
+        img.onload = function () {
+            var size = document.getElementById('size').value;
+            if(size){
+                var col = Math.ceil(img.width/size);
+                var row = Math.ceil(img.height/size);
+                slice(img,col,row,size)
+            }
+        };
+        img.src = dataUrl;
+        // document.body.appendChild(img);
+    }
+</script>
+<script type="text/javascript">
+    /**
+     * 第二步切图
+     * */
+    function slice(img,col,row,size) {
+        //var canvas = document.createElement("canvas");
+        var canvas = document.getElementById('show');
+
+        var ctx = canvas.getContext("2d");
+        canvas.width = col*size;
+        canvas.height = row*size;
+        //背景黑色
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        //绘制图像
+        ctx.drawImage(img, 0, canvas.height-img.height,img.width,img.height);
+        base64_arr = [];
+        for(var i=0;i<row;i++){
+            base64_arr.push([]);
+            for(var ii=0;ii<col;ii++){
+                base64_arr[i].push(slice1(ctx,ii,i,size));
+            }
+        }
+        download()
+    }
+    function slice1(ctx,x,y,size) {
+        /** * 拷贝画布 * @param 拷贝原canvas起始点x坐标点 * @param 拷贝原canvas起始点y坐标点 * @param 拷贝图片的宽度 * @param 拷贝图片的高度 * @type {ImageData} */
+        var dataImg = ctx.getImageData( x*size, y*size,size,size);
+        //声明一个新的画布,用来存放copy下的图片
+        var _canvas = document.createElement("canvas");
+        var _cxt = _canvas.getContext("2d");
+        _canvas.width = size;
+        _canvas.height = size;
+        /** * @param copy的图片 * @param 存放新位置的x坐标点 * @param 存放新位置的y坐标点 */
+        _cxt.putImageData(dataImg,0,0);
+        let base64 = _canvas.toDataURL('image/jpeg');
+        return base64;
+    }
+</script>
+<script src="./../zip_download(原型)/jszip.min.js"></script>
+<script src="./../zip_download(原型)/FileSaver.min.js"></script>
+<script>
+    /**
+     * 第三步下载
+     * */
+    var base64_arr = [];
+    function download(){
+        try{
+            var map_id = document.getElementById('map_id').value;
+            var zip = new JSZip();
+            var row = base64_arr.length;
+            for(var i=0;i<row;i++){
+                for(var ii=0;ii<base64_arr[i].length;ii++){
+                    let img = base64_arr[i][ii].replace(/^data:image\/jpeg;base64,(.)/, '$1');
+                    console.log(map_id+'_'+(row-1-i)+'_'+ii+'.jpg');
+                    zip.file(map_id+'_'+(row-1-i)+'_'+ii+'.jpg', img, {base64:true});
+                }
+            }
+            zip.generateAsync({type:'blob'}).then((content)=>{
+                console.log('content:', content);
+                saveAs(content, 'example.zip');
+            });
+        } catch(err){
+            console.log("err:", err);
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<button onclick="download()">下载</button>
+<script src="jszip.min.js"></script>
+<script src="FileSaver.min.js"></script>
+<script>
+    function download(){
+
+
+        try{
+            var zip = new JSZip();
+
+            // var arr = [
+            //     'https://dggtechtest.oss-cn-beijing..... .pdf',
+            //     'https://dggtechtest.oss-cn-beijing..... .pdf',
+            // ];
+
+            // let blob =  fetch(arr[0]).then(res=>res.blob());
+            // zip.file('1.pdf', blob);
+            //
+            // let blob2 =  fetch(arr[1]).then(res=>res.blob());
+            // zip.file('2.pdf', blob2);
+
+            //let src = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAA.....';
+            let src = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wgARCAAJAAgDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIQAxAAAAG/B//EABQQAQAAAAAAAAAAAAAAAAAAABD/2gAIAQEAAQUCP//EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQMBAT8Bf//EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQIBAT8Bf//EABQQAQAAAAAAAAAAAAAAAAAAABD/2gAIAQEABj8CP//EABQQAQAAAAAAAAAAAAAAAAAAABD/2gAIAQEAAT8hP//aAAwDAQACAAMAAAAQ8//EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQMBAT8Qf//EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQIBAT8Qf//EABQQAQAAAAAAAAAAAAAAAAAAABD/2gAIAQEAAT8QP//Z';
+
+
+            let img = src.replace(/^data:image\/jpeg;base64,(.)/, '$1');
+
+            zip.file('m.jpeg', img, {base64:true});
+            zip.file('m2.jpeg', img, {base64:true});
+
+            zip.generateAsync({type:'blob'}).then((content)=>{
+                console.log('content:', content);
+                saveAs(content, 'example.zip');
+            });
+        } catch(err){
+            console.log("err:", err);
+        }
+    }
+</script>
+</body>
+</html>

@@ -23,16 +23,21 @@
 		</style>
 	</head>
 	<body>
-	<input id="width" type="text" value="" placeholder="width"><br>
-	<input id="height" type="text" value="" placeholder="height"><br>
+	<input id="map_id" type="text" value="" placeholder="map_id"><br>
 	<input id="file" type="file" value="" onchange="set_background()"><br>
-	
-	
-	<input id="row" type="text" value="" placeholder="row"><br>
-	<input id="col" type="text" value="" placeholder="col"><br>
 	<input id="size" type="text" value="" placeholder="size"><br>
 	<input id="scale" type="text" value="" placeholder="scale"><br>
 	<input onclick="make_block_btn()" type="button" value="生成"><input onclick="make_file()" type="button" value="输出"><br>
+
+
+
+
+	<input id="width" type="text" value="" placeholder="width"><br>
+	<input id="height" type="text" value="" placeholder="height"><br>
+
+	<input id="row" type="text" value="" placeholder="row"><br>
+	<input id="col" type="text" value="" placeholder="col"><br>
+
 	<div>
 		<span style="background-color: rgba(0,0,0,0)">按住1键画0</span>
 		<span style="background-color: rgba(0,128,0,0.5)">按住2键画1</span>
@@ -46,10 +51,12 @@
 
 		<script>
 			function make_block_btn() {
-			    var row = document.getElementById('row').value;
-                var col = document.getElementById('col').value;
                 var size = document.getElementById('size').value;
                 var scale = document.getElementById('scale').value;
+                document.getElementById('row').value = Math.ceil(document.getElementById('height').value/size);
+                document.getElementById('col').value = Math.ceil(document.getElementById('width').value/size);
+			    var row = document.getElementById('row').value;
+                var col = document.getElementById('col').value;
                 make_block(row,col,size*scale,size*scale);
                 onkey();
             }
@@ -59,7 +66,7 @@
 			    for(var i=0;i<row;i++){
 			        var row_html = '<tr>';
                     for(var ii=0;ii<col;ii++){
-                        row_html+='<td title="'+ii+','+(row-i)+'" data-value="0" style="width:'+width+'px;height:'+height+'px;"></td>';
+                        row_html+='<td title="'+ii+','+(row-1-i)+'" data-value="0" style="width:'+width+'px;height:'+height+'px;"></td>';
                     }
                     row_html += '</tr>';
                     html+=row_html;
@@ -135,15 +142,21 @@
             let f = document.getElementById('file').files[0];
             reads.readAsDataURL(f);
             reads.onload = function (e) {
-                document.getElementById('background').style.backgroundImage = 'url('+this.result+')';
-                document.getElementById('background').style.width = document.getElementById('width').value+'px';
-                document.getElementById('background').style.height = document.getElementById('height').value+'px';
+                var img = new Image();
+                img.onload = function () {
+                    document.getElementById('background').style.backgroundImage = 'url('+reads.result+')';
+                    document.getElementById('width').value = img.width;
+                    document.getElementById('height').value = img.height;
+                    document.getElementById('background').style.width = document.getElementById('width').value+'px';
+                    document.getElementById('background').style.height = document.getElementById('height').value+'px';
+                };
+                img.src = reads.result;
             };
         }
 	</script>
 	<script>
 		function make_file() {
-			var mapId = 1010;
+			var mapId = Number(document.getElementById('map_id').value);
 			var width = Number(document.getElementById('width').value);
             var height = Number(document.getElementById('height').value);
 			var grid_width = Number(document.getElementById('size').value);
