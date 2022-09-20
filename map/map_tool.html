@@ -46,7 +46,7 @@
 	</div>
 	<div style="position: relative">
 		<div id="background" style="position: absolute;top:0;left:0;"></div>
-		<table id="container" style="position: absolute;top:0;left:0;"></table>
+		<table id="container" style="position: absolute;left:0;"></table>
 	</div>
 
 		<script>
@@ -149,6 +149,7 @@
                     document.getElementById('height').value = img.height;
                     document.getElementById('background').style.width = document.getElementById('width').value+'px';
                     document.getElementById('background').style.height = document.getElementById('height').value+'px';
+                    document.getElementById('container').style.bottom = '-'+document.getElementById('height').value+'px';
                 };
                 img.src = reads.result;
             };
