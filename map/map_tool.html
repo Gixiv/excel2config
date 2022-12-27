@@ -27,6 +27,7 @@
 	<input id="file" type="file" value="" onchange="set_background()"><br>
 	<input id="size" type="text" value="" placeholder="size"><br>
 	<input id="scale" type="text" value="" placeholder="scale"><br>
+	<input id="big" type="text" value="" placeholder="big"><br>
 	<input onclick="make_block_btn()" type="button" value="生成"><input onclick="make_file()" type="button" value="输出"><br>
 
 
@@ -44,6 +45,7 @@
 		<span style="background-color: rgba(255,0,0,0.5)">按住3键画2</span>
 		<div style="clear: both"></div>
 	</div>
+	<div style="height: 50px;"></div>
 	<div style="position: relative">
 		<div id="background" style="position: absolute;top:0;left:0;"></div>
 		<table id="container" style="position: absolute;left:0;"></table>
@@ -66,7 +68,7 @@
 			    for(var i=0;i<row;i++){
 			        var row_html = '<tr>';
                     for(var ii=0;ii<col;ii++){
-                        row_html+='<td title="'+ii+','+(row-1-i)+'" data-value="0" style="width:'+width+'px;height:'+height+'px;"></td>';
+                        row_html+='<td id="'+ii+','+(row-1-i)+'" title="'+ii+','+(row-1-i)+'" data-value="0" style="width:'+width+'px;height:'+height+'px;"></td>';
                     }
                     row_html += '</tr>';
                     html+=row_html;
@@ -112,20 +114,41 @@
 					}
                     if(e.keyCode===49){
                         init_block((this_dom)=>{
-                            this_dom.dataset.value = '0';
-                            this_dom.style.backgroundColor = 'rgba(0,0,0,0)';
+                            if(is_big()){
+                                big(this_dom,(this_dom)=>{
+                                    this_dom.dataset.value = '0';
+                                    this_dom.style.backgroundColor = 'rgba(0,0,0,0)';
+                                })
+                            }else{
+                                this_dom.dataset.value = '0';
+                                this_dom.style.backgroundColor = 'rgba(0,0,0,0)';
+                            }
                         });
                     }
 					if(e.keyCode===50){
                         init_block((this_dom)=>{
-                            this_dom.dataset.value = '1';
-                            this_dom.style.backgroundColor = 'rgba(0,128,0,0.5)';
+                            if(is_big()){
+                                big(this_dom,(this_dom)=>{
+                                    this_dom.dataset.value = '1';
+                                    this_dom.style.backgroundColor = 'rgba(0,128,0,0.5)';
+                                })
+                            }else{
+                                this_dom.dataset.value = '1';
+                                this_dom.style.backgroundColor = 'rgba(0,128,0,0.5)';
+                            }
                         });
 					}
                     if(e.keyCode===51){
                         init_block((this_dom)=>{
-                            this_dom.dataset.value = '2';
-                            this_dom.style.backgroundColor = 'rgba(255,0,0,0.5)';
+                            if(is_big()){
+                                big(this_dom,(this_dom)=>{
+                                    this_dom.dataset.value = '2';
+                                    this_dom.style.backgroundColor = 'rgba(255,0,0,0.5)';
+								})
+							}else{
+                                this_dom.dataset.value = '2';
+                                this_dom.style.backgroundColor = 'rgba(255,0,0,0.5)';
+							}
                         });
                     }
 				};
@@ -133,6 +156,27 @@
                     flag = false;
                     init_block(()=>{});
 				}
+            }
+            function is_big() {
+				return document.getElementById('big').value;
+            }
+            //加粗
+			function big(this_dom,callback) {
+
+				var xy = this_dom.getAttribute('id').split(",");
+				var  y = Number(xy[1]);
+                var  x = Number(xy[0]);
+
+                for(var i=y-1;i<=y+1;i++ ){
+                    for(var ii=x-1;ii<=x+1;ii++ ){
+                        if(document.getElementById(ii+','+i)){
+                            callback(document.getElementById(ii+','+i));
+                        }
+                    }
+                }
+
+
+
             }
 		</script>
 	<script>
@@ -150,6 +194,8 @@
                     document.getElementById('background').style.width = document.getElementById('width').value+'px';
                     document.getElementById('background').style.height = document.getElementById('height').value+'px';
                     document.getElementById('container').style.bottom = '-'+document.getElementById('height').value+'px';
+                    document.getElementById('container').style.width = document.getElementById('width').value+'px';
+
                 };
                 img.src = reads.result;
             };
