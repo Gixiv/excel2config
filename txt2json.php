@@ -17,7 +17,7 @@ if(!isset($_FILES["file"])){
 		$tmp_name =  $_FILES["file"]["tmp_name"] ;
 		$data = file_get_contents($tmp_name);
 		
-		echo json_encode(['txt'=>$data]);
+		echo json_encode(['txt'=>$data],JSON_UNESCAPED_UNICODE);
 	}
 }
 ?>
