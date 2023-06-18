@@ -5,6 +5,7 @@
 </head>
 <body>
 <input  id="map_id" type="text" value="" placeholder="map_id"/>
+<input  id="scale" type="text" value="" placeholder="scale"/>
 <input  id="size" type="text" value="" placeholder="size"/>
 <input  id="fileOne" type="file" />
 <canvas id="show"></canvas>
@@ -34,11 +35,12 @@
         //加载图片
         var img = new Image();
         img.onload = function () {
+            var scale = document.getElementById('scale').value;
             var size = document.getElementById('size').value;
-            if(size){
-                var col = Math.ceil(img.width/size);
-                var row = Math.ceil(img.height/size);
-                slice(img,col,row,size)
+            if(size&&scale){
+                var col = Math.ceil(img.width/(size));
+                var row = Math.ceil(img.height/(size));
+                slice(img,col,row,size,scale)
             }
         };
         img.src = dataUrl;
@@ -49,23 +51,23 @@
     /**
      * 第二步切图
      * */
-    function slice(img,col,row,size) {
+    function slice(img,col,row,size,scale) {
         //var canvas = document.createElement("canvas");
         var canvas = document.getElementById('show');
 
         var ctx = canvas.getContext("2d");
-        canvas.width = col*size;
-        canvas.height = row*size;
+        canvas.width = col*size*scale;
+        canvas.height = row*size*scale;
         //背景黑色
         ctx.fillStyle = '#000';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         //绘制图像
-        ctx.drawImage(img, 0, canvas.height-img.height,img.width,img.height);
+        ctx.drawImage(img, 0, canvas.height-img.height*scale,img.width*scale,img.height*scale);
         base64_arr = [];
         for(var i=0;i<row;i++){
             base64_arr.push([]);
             for(var ii=0;ii<col;ii++){
-                base64_arr[i].push(slice1(ctx,ii,i,size));
+                base64_arr[i].push(slice1(ctx,ii,i,size*scale));
             }
         }
         download()
@@ -94,13 +96,14 @@
     function download(){
         try{
             var map_id = document.getElementById('map_id').value;
+            map_id = map_id?map_id+'_':'';
             var zip = new JSZip();
             var row = base64_arr.length;
             for(var i=0;i<row;i++){
                 for(var ii=0;ii<base64_arr[i].length;ii++){
                     let img = base64_arr[i][ii].replace(/^data:image\/jpeg;base64,(.)/, '$1');
-                    console.log(map_id+'_'+(row-1-i)+'_'+ii+'.jpg');
-                    zip.file(map_id+'_'+(row-1-i)+'_'+ii+'.jpg', img, {base64:true});
+                    console.log(ii+'_'+map_id+(row-1-i)+'.jpg');
+                    zip.file(ii+'_'+map_id+(row-1-i)+'.jpg', img, {base64:true});
                 }
             }
             zip.generateAsync({type:'blob'}).then((content)=>{

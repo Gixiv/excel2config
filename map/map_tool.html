@@ -24,25 +24,29 @@
 	</head>
 	<body>
 	<input id="map_id" type="text" value="" placeholder="map_id"><br>
+	<input id="width" type="text" value="" placeholder="width"><br>
+	<input id="height" type="text" value="" placeholder="height"><br>
+	<input id="col_size" type="text" value="" placeholder="col_size"><br>
+	<input id="row_size" type="text" value="" placeholder="row_size"><br>
 	<input id="file" type="file" value="" onchange="set_background()"><br>
-	<input id="size" type="text" value="" placeholder="size"><br>
-	<input id="scale" type="text" value="" placeholder="scale"><br>
+	<input id="w_size" type="text" value="" placeholder="w_size"><br>
+	<input id="h_size" type="text" value="" placeholder="h_size"><br>
 	<input id="big" type="text" value="" placeholder="big"><br>
+	<input id="before_data_file" type="file" value="" onchange="set_import_data()"  >
 	<input onclick="make_block_btn()" type="button" value="生成"><input onclick="make_file()" type="button" value="输出"><br>
 
 
 
 
-	<input id="width" type="text" value="" placeholder="width"><br>
-	<input id="height" type="text" value="" placeholder="height"><br>
 
-	<input id="row" type="text" value="" placeholder="row"><br>
-	<input id="col" type="text" value="" placeholder="col"><br>
+
+	<input id="row" type="text" value="" placeholder="row" readonly><br>
+	<input id="col" type="text" value="" placeholder="col" readonly><br>
 
 	<div>
 		<span style="background-color: rgba(0,0,0,0)">按住1键画0</span>
-		<span style="background-color: rgba(0,128,0,0.5)">按住2键画1</span>
-		<span style="background-color: rgba(255,0,0,0.5)">按住3键画2</span>
+		<span style="background-color: rgba(255,0,0,0.5)">按住2键画1</span>
+		<span style="background-color: rgba(0,128,0,0.5)">按住3键画2</span>
 		<div style="clear: both"></div>
 	</div>
 	<div style="height: 50px;"></div>
@@ -52,14 +56,51 @@
 	</div>
 
 		<script>
+			var before_data = [[]];
+			function set_import_data() {
+                var before_data_file = document.getElementById("before_data_file").files[0];
+                var reader = new FileReader();
+                reader.readAsText(before_data_file);
+                reader.onload = function (e) {
+                    before_data = JSON.parse(e.target.result)
+				};
+            }
+            function use_import_data(path) {
+                var tr_arr = document.getElementsByTagName('tr');
+                for(var i=0;i<row;i++){
+                    var tr = tr_arr[row-1-i];
+                    for(var ii=0;ii<col;ii++){
+                        var td =tr.getElementsByTagName('td')[ii];
+						var item_data = path[i][ii];
+                        if(item_data ===0){
+                            td.dataset.value = '0';
+                            td.style.backgroundColor = 'rgba(0,0,0,0)';
+						}else if(item_data ===1){
+                            td.dataset.value = '1';
+                            td.style.backgroundColor = 'rgba(255,0,0,0.5)';
+						}else if(item_data ===2){
+                            td.dataset.value = '2';
+                            td.style.backgroundColor = 'rgba(0,128,0,0.5)';
+                        }
+                    }
+                }
+            }
+		</script>
+		<script>
+			var row = 0;
+            var col = 0;
 			function make_block_btn() {
-                var size = document.getElementById('size').value;
-                var scale = document.getElementById('scale').value;
-                document.getElementById('row').value = Math.ceil(document.getElementById('height').value/size);
-                document.getElementById('col').value = Math.ceil(document.getElementById('width').value/size);
-			    var row = document.getElementById('row').value;
-                var col = document.getElementById('col').value;
-                make_block(row,col,size*scale,size*scale);
+                var w_size = document.getElementById('w_size').value;
+                var h_size = document.getElementById('h_size').value;
+                document.getElementById('row').value = Math.ceil(document.getElementById('height').value/h_size);
+                document.getElementById('col').value = Math.ceil(document.getElementById('width').value/w_size);
+			    row = document.getElementById('row').value;
+                col = document.getElementById('col').value;
+                make_block(row,col,w_size,h_size);
+                console.log(before_data['path']);
+                if(before_data['path'].length){
+                    use_import_data(before_data['path']);
+				}
                 onkey();
             }
             //生成地图块
@@ -130,11 +171,11 @@
                             if(is_big()){
                                 big(this_dom,(this_dom)=>{
                                     this_dom.dataset.value = '1';
-                                    this_dom.style.backgroundColor = 'rgba(0,128,0,0.5)';
+                                    this_dom.style.backgroundColor = 'rgba(255,0,0,0.5)';
                                 })
                             }else{
                                 this_dom.dataset.value = '1';
-                                this_dom.style.backgroundColor = 'rgba(0,128,0,0.5)';
+                                this_dom.style.backgroundColor = 'rgba(255,0,0,0.5)';
                             }
                         });
 					}
@@ -143,11 +184,11 @@
                             if(is_big()){
                                 big(this_dom,(this_dom)=>{
                                     this_dom.dataset.value = '2';
-                                    this_dom.style.backgroundColor = 'rgba(255,0,0,0.5)';
+                                    this_dom.style.backgroundColor = 'rgba(0,128,0,0.5)';
 								})
 							}else{
                                 this_dom.dataset.value = '2';
-                                this_dom.style.backgroundColor = 'rgba(255,0,0,0.5)';
+                                this_dom.style.backgroundColor = 'rgba(0,128,0,0.5)';
 							}
                         });
                     }
@@ -162,13 +203,14 @@
             }
             //加粗
 			function big(this_dom,callback) {
+				var big = Number(document.getElementById('big').value);
 
 				var xy = this_dom.getAttribute('id').split(",");
 				var  y = Number(xy[1]);
                 var  x = Number(xy[0]);
 
-                for(var i=y-1;i<=y+1;i++ ){
-                    for(var ii=x-1;ii<=x+1;ii++ ){
+                for(var i=y-big;i<=y+big;i++ ){
+                    for(var ii=x-big;ii<=x+big;ii++ ){
                         if(document.getElementById(ii+','+i)){
                             callback(document.getElementById(ii+','+i));
                         }
@@ -189,10 +231,11 @@
                 var img = new Image();
                 img.onload = function () {
                     document.getElementById('background').style.backgroundImage = 'url('+reads.result+')';
-                    document.getElementById('width').value = img.width;
-                    document.getElementById('height').value = img.height;
+                    // document.getElementById('width').value = img.width;
+                    // document.getElementById('height').value = img.height;
                     document.getElementById('background').style.width = document.getElementById('width').value+'px';
                     document.getElementById('background').style.height = document.getElementById('height').value+'px';
+                    document.getElementById('background').style.backgroundSize = document.getElementById('width').value+'px' +' '+document.getElementById('height').value+'px';
                     document.getElementById('container').style.bottom = '-'+document.getElementById('height').value+'px';
                     document.getElementById('container').style.width = document.getElementById('width').value+'px';
 
@@ -203,21 +246,17 @@
 	</script>
 	<script>
 		function make_file() {
-			var mapId = Number(document.getElementById('map_id').value);
-			var width = Number(document.getElementById('width').value);
-            var height = Number(document.getElementById('height').value);
-			var grid_width = Number(document.getElementById('size').value);
-			var grid_height = Number(document.getElementById('size').value);
-            var row = Number(document.getElementById('row').value);
-            var col = Number(document.getElementById('col').value);
+			var mapId = Number(document.getElementById('map_id').value?document.getElementById('map_id').value:'1');
+            var map_width = Number(document.getElementById('width').value);
+            var map_height = Number(document.getElementById('height').value);
+            var col_size = Number(document.getElementById('col_size').value);
+            var row_size = Number(document.getElementById('row_size').value);
 
-		    var data ={};
-		    data.datatype = 'map';
-		    data.mapId = mapId;
-            data.baseInfo = {"mapId":mapId,"width":width,"height":height,"grid_width":grid_width,"grid_height":grid_height,"rows":row,"lines":col};
-            data.mapInfo = get_block_data();
-            data.npcInfo = {};
-            data.startPos = {"x":0,"y":0};
+
+            var col = map_width/col_size;
+            var row = map_height/row_size;
+
+            var data = {"map_width":map_width,"map_height":map_height,"row":row,"col":col,"col_size":col_size,"row_size":row_size,"path":get_block_data()};
             ExportTxt('map_'+mapId+'.json',JSON.stringify(data))
         }
         //生成文件
